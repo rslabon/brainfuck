@@ -97,19 +97,19 @@ public class Brainfuck {
 
     public void debug() {
         System.out.print("index    = ");
-        for (int i = 0; i < maxPointer; i++) {
+        for (int i = 0; i <= maxPointer; i++) {
             System.out.print(String.format("|%3d", i));
         }
         System.out.println("|");
 
         System.out.print("data     = ");
-        for (int i = 0; i < maxPointer; i++) {
+        for (int i = 0; i <= maxPointer; i++) {
             System.out.print(String.format("|%3d", data[i]));
         }
         System.out.println("|");
 
         System.out.print("pointer  = ");
-        for (int i = 0; i < pointer; i++) {
+        for (int i = 0; i <= pointer; i++) {
         }
         System.out.println(String.format("%4s", "^"));
     }
@@ -145,7 +145,7 @@ class CharTokenizer {
     }
 
     public void jumpBackTo(char c) {
-        for (int i = position; i > 0; i--) {
+        for (int i = position; i >= 0; i--) {
             if (input[i] == c) {
                 position = i;
                 break;
