@@ -10,7 +10,7 @@ struct Brainfuck
     int max_pointer;
 };
 
-struct Brainfuck *create_Brainfuck()
+struct Brainfuck *new_Brainfuck()
 {
     struct Brainfuck *brainfuck = malloc(sizeof(struct Brainfuck));
     assert (brainfuck != NULL);
@@ -86,9 +86,9 @@ void Brainfuck_debug(struct Brainfuck *brainfuck)
     i=0;
     for(;i<=brainfuck->pointer;i++)
     {
-        printf("");
+        printf(" ");
     }
-    printf("%4s", "^");
+    printf("%3s", "^");
 
     printf("\n");
 }
@@ -100,14 +100,14 @@ struct CharTokenizer
     int position;
 };
 
-struct CharTokenizer *create_CharTokenizer(char *input)
+struct CharTokenizer *new_CharTokenizer(char *input)
 {
     struct CharTokenizer *tokenizer = malloc(sizeof(struct CharTokenizer));
     assert (tokenizer != NULL);
 
     tokenizer -> input = input;
     tokenizer -> size = strlen(input);
-    tokenizer -> position = 0;
+    tokenizer -> position = -1;
 
     return tokenizer;
 }
@@ -132,8 +132,7 @@ int CharTokenizer_has_next(struct CharTokenizer *tokenizer)
 
 char CharTokenizer_next(struct CharTokenizer *tokenizer)
 {
-    tokenizer->position++;
-    return tokenizer->input[tokenizer->position];
+    return tokenizer->input[++(tokenizer->position)];
 }
 
 void CharTokenizer_jump_forward_to(struct CharTokenizer *tokenizer, char c)
@@ -162,10 +161,10 @@ void CharTokenizer_jump_back_to(struct CharTokenizer *tokenizer, char c)
     }
 }
 
-int main(void)
+struct Brainfuck *interpret(const char *input_string)
 {
-    struct Brainfuck *brainfuck = create_Brainfuck();
-    struct CharTokenizer *tokenizer = create_CharTokenizer("+++>++<[->+<]");
+    struct Brainfuck *brainfuck = new_Brainfuck();
+    struct CharTokenizer *tokenizer = new_CharTokenizer("+++>++<[->+<]");
 
     while(CharTokenizer_has_next(tokenizer))
     {
@@ -208,6 +207,12 @@ int main(void)
 
     CharTokenizer_destroy(tokenizer);
 
+    return brainfuck;
+}
+
+int main(void)
+{
+    struct Brainfuck *brainfuck = interpret("+++>++<[->+<]");
     Brainfuck_debug(brainfuck);
     Brainfuck_destroy(brainfuck);
 
