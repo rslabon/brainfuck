@@ -161,10 +161,10 @@ void CharTokenizer_jump_back_to(struct CharTokenizer *tokenizer, char c)
     }
 }
 
-struct Brainfuck *interpret(const char *input_string)
+struct Brainfuck *interpret(char *input_string)
 {
     struct Brainfuck *brainfuck = new_Brainfuck();
-    struct CharTokenizer *tokenizer = new_CharTokenizer("+++>++<[->+<]");
+    struct CharTokenizer *tokenizer = new_CharTokenizer(input_string);
 
     while(CharTokenizer_has_next(tokenizer))
     {
