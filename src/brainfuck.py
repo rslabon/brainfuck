@@ -74,7 +74,7 @@ class Brainfuck:
 
         print("position  = ", end='')
         for index in range(0, self.pointer):
-            print("", end='')
+            print(" ", end='')
         print("%5s" % "^")
 
 

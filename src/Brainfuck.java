@@ -1,5 +1,7 @@
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -14,6 +16,8 @@ import java.util.Map;
 
 public class Brainfuck {
 
+    private static final int MAX_DATA_LENGTH = 30000;
+
     public static void main(String[] args) {
         System.out.println("\n********* data[1] = 3 + 2 *********");
         Brainfuck.interpret("+++>++<[->+<]").debug();
@@ -27,7 +31,7 @@ public class Brainfuck {
         void handle();
     }
 
-    private final byte[] data = new byte[30000];
+    private final byte[] data = new byte[MAX_DATA_LENGTH];
     private int pointer = 0;
     private int maxPointer = 0;
 
@@ -49,14 +53,19 @@ public class Brainfuck {
             if (brainfuck.peek() != 0) tokenizer.jumpBackTo('[');
         });
 
-        while (tokenizer.hasNext()) {
-            char commandChar = tokenizer.next();
-            CommandHandler handler = commands.get(commandChar);
-            if (handler == null) {
-                throw new IllegalStateException("Invalid char: '" + commandChar +
-                        "' at index " + tokenizer.getPosition() + " in: '" + input + "'");
+        try {
+            for (char commandChar : tokenizer) {
+                CommandHandler handler = commands.get(commandChar);
+                if (handler == null) {
+                    throw new IllegalStateException("Invalid char: '" + commandChar +
+                            "' at index " + tokenizer.getPosition() + " in: '" + input + "'");
+                }
+                handler.handle();
             }
-            handler.handle();
+        } catch (Exception e) {
+            System.out.println("*** Error ***");
+            tokenizer.debug();
+            throw e;
         }
 
         return brainfuck;
@@ -67,11 +76,17 @@ public class Brainfuck {
     }
 
     public void incrementPointer() {
+        if (pointer + 1 >= MAX_DATA_LENGTH) {
+            throw new IllegalStateException("Pointer out of range(" + (pointer + 1) + ")!");
+        }
         pointer++;
         maxPointer++;
     }
 
     public void decrementPointer() {
+        if (pointer - 1 < 0) {
+            throw new IllegalStateException("Pointer out of range(" + (pointer - 1) + ")!");
+        }
         pointer--;
     }
 
@@ -110,12 +125,13 @@ public class Brainfuck {
 
         System.out.print("pointer  = ");
         for (int i = 0; i <= pointer; i++) {
+            System.out.print(" ");
         }
-        System.out.println(String.format("%4s", "^"));
+        System.out.println(String.format("%3s", "^"));
     }
 }
 
-class CharTokenizer {
+class CharTokenizer implements Iterable<Character> {
     private final char[] input;
     private int position = -1;
 
@@ -123,16 +139,23 @@ class CharTokenizer {
         this.input = input.toCharArray();
     }
 
-    public boolean hasNext() {
-        return position + 1 < input.length;
-    }
-
-    public char next() {
-        return input[++position];
-    }
-
     public int getPosition() {
         return position;
+    }
+
+    public void debug() {
+        PrintStream ps = System.out;
+        ps.print("data      = ");
+        for (int i = 0; i < input.length; i++) {
+            ps.print(String.format("%c", input[i]));
+        }
+        ps.println();
+
+        ps.print("position  = ");
+        for (int i = 0; i < position; i++) {
+            ps.print(" ");
+        }
+        ps.println(String.format("%s", "^"));
     }
 
     public void jumpForwardTo(char c) {
@@ -151,5 +174,20 @@ class CharTokenizer {
                 break;
             }
         }
+    }
+
+    @Override
+    public Iterator<Character> iterator() {
+        return new Iterator<Character>() {
+            @Override
+            public boolean hasNext() {
+                return position + 1 < input.length;
+            }
+
+            @Override
+            public Character next() {
+                return input[++position];
+            }
+        };
     }
 }
